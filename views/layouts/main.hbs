@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css">
+    
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+
+
+</head>
+
+<body>
+
+    {{!-- {{>navigation}} --}}
+
+    <div class="container p-4">
+        <div class="row">
+            {{{ body }}}
+
+        </div>
+        <div class="row text-center">
+            <div class="col col-sm-12 mt-2">
+                <div class="card" >
+                    
+                    <div class="card-body text-center">                    
+                        <div class="row">                            
+                                <figure class="highcharts-figure">
+                                    <div id="container"></div>                        
+                                </figure>
+                            </div>
+                        </div>
+                    </div>   
+                </div>
+        </div>
+                
+    </div>
+
+</body>
+<script>
+//socket listeners
+const socket = io('{{{host}}}');
+
+const startListen = ()=> {
+    
+    document.getElementById('listenButton').innerHTML = 'Stop Listen';
+
+    socket.on('monitor', (payload)=>{    
+        
+        if(payload.length>0) {      
+        
+            const data = JSON.parse(payload);
+            let ac;            
+
+            switch (data.device_id){
+
+                case 'AIRE_NEO_H.L.L.': {
+                    
+                    ac = parseFloat(String(data.ac).substring(0,4));
+                    updateGauges(neoSensors.gaugeac,ac);
+
+                    break;
+                }
+
+            }
+
+
+        } else{ return;}
+
+        
+
+    })
+
+}
+
+const neoSensors = {
+    gaugeac        : 0,    
+};
+
+Highcharts.chart('container', {
+
+            chart: {
+                type: 'gauge',
+                plotBackgroundColor: null,
+                plotBackgroundImage: null,
+                plotBorderWidth: 0,
+                plotShadow: false,
+                height: '80%'
+            },
+
+            title: {
+                text: 'Socket Value'
+            },
+
+            pane: {
+                startAngle: -90,
+                endAngle: 89.9,
+                background: {
+            backgroundColor:
+                    Highcharts.defaultOptions.legend.backgroundColor || '#EEE',
+                innerRadius: '60%',
+                outerRadius: '100%',
+                shape: 'arc'
+            },
+                center: ['50%', '75%'],
+                size: '140%'
+            },
+
+            // the value axis
+            yAxis: {
+                min: 0,
+                max: 10,
+                tickPixelInterval: 72,
+                tickPosition: 'inside',
+                tickColor: Highcharts.defaultOptions.chart.backgroundColor || '#FFFFFF',
+                tickLength: 10,
+                tickWidth: 1,
+                minorTickInterval: null,
+                labels: {
+                    distance: 10,
+                    style: {
+                        fontSize: '14px'
+                    }
+                },
+                plotBands: [
+                {
+                    from: 0,
+                    to: 3,
+                    color: '#DF7C71', // light red coral
+                    thickness: 20
+                },
+                {
+                    from: 3,
+                    to: 6,
+                    color: '#55BF3B', // green
+                    thickness: 20
+                }, {
+                    from: 6,
+                    to: 7,
+                    color: '#DDDF0D', // yellow
+                    thickness: 20
+                }, {
+                    from: 7,
+                    to: 10,
+                    color: '#DF5353', // red
+                    thickness: 20
+                }]
+            },
+
+            series: [{
+                name: 'ac',
+                data: [0],
+                tooltip: {
+                    valueSuffix: ' Value'
+                },
+                dataLabels: {
+                    format: '{y} Value',
+                    borderWidth: 0,
+                    color: (
+                        Highcharts.defaultOptions.title &&
+                        Highcharts.defaultOptions.title.style &&
+                        Highcharts.defaultOptions.title.style.color
+                    ) || '#333333',
+                    style: {
+                        fontSize: '16px'
+                    }
+                },
+                dial: {
+                    radius: '80%',
+                    backgroundColor: 'gray',
+                    baseWidth: 12,
+                    baseLength: '0%',
+                    rearLength: '0%'
+                },
+                pivot: {
+                    backgroundColor: 'gray',
+                    radius: 6
+                }
+
+            }]
+
+        });
+
+const updateGauges = (chartId, parameter) =>{
+        const chart = Highcharts.charts[chartId];
+            if (chart && !chart.renderer.forExport) {
+                const point = chart.series[0].points[0],                
+                    
+                    newVal = parameter;                                      
+                    point.update(newVal);
+                }
+    }
+
+
+</script>
+</html>

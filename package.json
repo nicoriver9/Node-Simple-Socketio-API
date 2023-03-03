@@ -1,0 +1,19 @@
+{
+  "name": "telemetria",
+  "version": "1.0.0",
+  "description": "* run npm install\r * run dev on context with run npm dev\r * buid with tsc",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-specifier-resolution=node src/index"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-handlebars": "^7.0.1",
+    "path": "^0.12.7",
+    "socket.io": "^4.6.1"
+  }
+}
