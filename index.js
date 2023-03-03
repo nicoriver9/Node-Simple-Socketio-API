@@ -1,24 +1,18 @@
-import express from "express";
-import http from "http";
-import { engine } from 'express-handlebars';
-import { Server } from "socket.io";
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-
-const __dirname = path.dirname(__filename);
-
-
-import IndexRoutes from './routes';
-import {sockets} from "./sockets/device";
+const express = require ( "express");
+const path = require ( "path");
+const http = require ( "http");
+const { engine } = require ( 'express-handlebars');
+const cors = require ( 'cors');
+const  {Server}  = require ( "socket.io");
+const IndexRoutes = require ( './routes');
+const {sockets} = require ( "./sockets/device");
 
 
 //Initialize
 const app = express();
 const server = http.createServer(app);
 
-export const io = new Server(server);
+const io = new Server(server);
 
 
 //Settings
@@ -35,6 +29,7 @@ app.set('view engine', '.hbs');
 //Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 //Routes
 app.use(IndexRoutes);
@@ -49,4 +44,6 @@ server.listen(app.get('port'), () => {
 });
 
 
-sockets();
+
+sockets(io);
+
