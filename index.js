@@ -2,7 +2,7 @@ const express = require ( "express");
 const path = require ( "path");
 const http = require ( "http");
 const { engine } = require ( 'express-handlebars');
-//const cors = require ( 'cors');
+const cors = require ( 'cors');
 const  {Server}  = require ( "socket.io");
 const IndexRoutes = require ( './routes');
 const {sockets} = require ( "./sockets/device");
@@ -29,7 +29,7 @@ app.set('view engine', '.hbs');
 //Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-//app.use(cors());
+app.use(cors());
 
 //Routes
 app.use(IndexRoutes);
